@@ -6,7 +6,10 @@ require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://zeta-edge-server.vercel.app",
+];
 const corsOptions = {
     origin: allowedOrigins,
 };
@@ -27,7 +30,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log(
             "Pinged your deployment. You successfully connected to MongoDB!"
         );
@@ -65,3 +68,5 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
