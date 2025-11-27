@@ -65,8 +65,48 @@ app.get("/", (req, res) => {
     res.send("Zeta Edge server is running");
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+// ------- HEALTH CHECK API WITH MONGODB CONNECTION STATUS -------
+app.get("/health", async (req, res) => {
+    const mem = process.memoryUsage();
+
+    try {
+        const start = Date.now();
+
+        await client.db("admin").command({ ping: 1 });
+
+        const latencyMs = Date.now() - start;
+
+        return res.status(200).json({
+            status: "ok",
+            timestamp: new Date().toISOString(),
+            mongodb: {
+                ok: true,
+                message: "MongoDB is reachable",
+                latencyMs,
+            },
+            uptimeSeconds: Math.floor(process.uptime()),
+            memory: {
+                rss: mem.rss,
+                heapTotal: mem.heapTotal,
+                heapUsed: mem.heapUsed,
+            },
+        });
+    } catch (err) {
+        return res.status(503).json({
+            status: "down",
+            timestamp: new Date().toISOString(),
+            mongodb: {
+                ok: false,
+                message: err.message || "MongoDB ping failed",
+            },
+        });
+    }
 });
+
+if (process.env.NODE_ENV !== "production") {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
 
 module.exports = app;

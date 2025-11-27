@@ -19,5 +19,11 @@
                 "OPTIONS"
             ]
         }
+    ],
+    "crons": [
+        {
+            "path": "/",
+            "schedule": "*/5 * * * *"
+        }
     ]
 }
